@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "replace-with-control-plane-worker-name",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-31",
+  "account_id": "replace-with-cloudflare-account-id",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "replace-with-d1-database-name",
+      "database_id": "replace-with-d1-database-id",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "CHAT_RUNTIME_INSTALLATION_ID": "replace-with-installation-id",
+    "CHAT_RUNTIME_RETENTION_DAYS": "30"
+  }
+}

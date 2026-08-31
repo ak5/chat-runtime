@@ -1,0 +1,6 @@
+[tools]
+node = "22"
+pnpm = "10.15.0"
+
+[tasks.verify]
+run = "pnpm verify"

@@ -1,0 +1,13 @@
+node_modules
+.pnpm-store
+**/node_modules
+**/dist
+**/dist-types
+.git
+.wrangler
+coverage
+tmp
+.env
+.env.*
+!.env.example
+.DS_Store
