@@ -9,11 +9,11 @@
     "check": "pnpm -r check",
     "lint": "eslint .",
     "test": "vitest run",
-    "example:smoke": "pnpm --filter @chat-runtime/hono-control-plane smoke",
+    "api:smoke": "pnpm --filter @chat-runtime/api smoke",
     "image:build": "docker build -t chat-runtime:local .",
-    "verify": "pnpm check && pnpm lint && pnpm test && pnpm build && pnpm example:smoke",
+    "verify": "pnpm check && pnpm lint && pnpm test && pnpm build && pnpm api:smoke",
     "dev:runtime": "pnpm --filter @chat-runtime/runtime dev",
-    "dev:control-plane": "pnpm --filter @chat-runtime/hono-control-plane dev"
+    "dev:api": "pnpm --filter @chat-runtime/api dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",

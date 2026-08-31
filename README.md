@@ -8,7 +8,7 @@ The runtime deliberately contains no product policy, database client, model prov
 
 - `packages/protocol` — Zod schemas, types, IDs, and HMAC request signing.
 - `packages/runtime` — Discord and Telegram adapters, policy enforcement, delivery, receipts, and lifecycle.
-- `examples/hono-control-plane` — Cloudflare Worker, D1 migrations, authenticated routes, and example actions.
+- `packages/api` — Hono Cloudflare Worker API, D1 migrations, authenticated routes, and reference actions.
 - `docs` — architecture, protocol, security, development, and publishing guidance.
 
 ## Start locally
@@ -18,8 +18,8 @@ Requirements: Node.js 22, pnpm 10, and Docker for image verification.
 ```sh
 pnpm install
 cp .env.example .env
-pnpm --filter @chat-runtime/hono-control-plane exec wrangler d1 migrations apply DB --local
-pnpm dev:control-plane
+pnpm --filter @chat-runtime/api exec wrangler d1 migrations apply DB --local
+pnpm dev:api
 pnpm dev:runtime
 ```
 

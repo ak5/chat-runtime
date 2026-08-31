@@ -4,7 +4,7 @@
 
 The Docker runtime is an outbound-only transport executor. It maintains at most one Discord bot through the Gateway and at most one Telegram bot through continuous `getUpdates` long polling. Either can be disabled. The runtime normalizes events, signs requests, enforces capabilities, renders portable content, executes actions, and returns receipts.
 
-The Hono Cloudflare Worker is the example control plane. It authenticates the runtime, persists state in D1, applies consumer policy, returns immediate plans, and leases deferred plans. Product-specific commands, authorization, moderation, models, and storage integrations belong here or in another consumer control plane.
+The Hono Cloudflare Worker is the API and control plane. It authenticates the runtime, persists state in D1, applies policy, returns immediate plans, and leases deferred plans. Product-specific commands, authorization, moderation, models, and additional storage integrations belong in API extensions or a replacement consumer control plane.
 
 ```text
 Discord Gateway ─┐                         ┌─ immediate action plan

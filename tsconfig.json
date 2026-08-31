@@ -3,6 +3,6 @@
   "references": [
     { "path": "packages/protocol" },
     { "path": "packages/runtime" },
-    { "path": "examples/hono-control-plane" }
+    { "path": "packages/api" }
   ]
 }

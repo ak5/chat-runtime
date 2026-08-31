@@ -1,5 +1,5 @@
 {
-  "name": "@chat-runtime/hono-control-plane",
+  "name": "@chat-runtime/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",

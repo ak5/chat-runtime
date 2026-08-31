@@ -7,8 +7,8 @@ Install Node.js 22 and pnpm 10, then run `pnpm install`. Copy `.env.example` to 
 Initialize local D1 and run the Worker:
 
 ```sh
-pnpm --filter @chat-runtime/hono-control-plane exec wrangler d1 migrations apply DB --local
-pnpm dev:control-plane
+pnpm --filter @chat-runtime/api exec wrangler d1 migrations apply DB --local
+pnpm dev:api
 ```
 
 Run the transport in another terminal with environment variables loaded:
@@ -26,7 +26,7 @@ pnpm check
 pnpm lint
 pnpm test
 pnpm build
-pnpm example:smoke
+pnpm api:smoke
 pnpm image:build
 pnpm verify
 ```

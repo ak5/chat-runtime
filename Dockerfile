@@ -6,10 +6,9 @@ WORKDIR /workspace
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json tsconfig.base.json ./
 COPY packages/protocol/package.json packages/protocol/package.json
 COPY packages/runtime/package.json packages/runtime/package.json
-COPY examples/hono-control-plane/package.json examples/hono-control-plane/package.json
+COPY packages/api/package.json packages/api/package.json
 RUN pnpm install --frozen-lockfile
 COPY packages ./packages
-COPY examples ./examples
 RUN pnpm --filter @chat-runtime/runtime... build
 
 FROM node:22-bookworm-slim AS runtime

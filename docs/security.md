@@ -9,7 +9,7 @@ An action executes only when its platform is enabled, its action type is allowli
 Use a random `CHAT_RUNTIME_SHARED_SECRET` of at least 32 characters. Runtime tokens and the shared secret belong in an uncommitted `.env` or container secret. The Worker secret is configured with Wrangler:
 
 ```sh
-pnpm --filter @chat-runtime/hono-control-plane exec wrangler secret put CHAT_RUNTIME_SHARED_SECRET
+pnpm --filter @chat-runtime/api exec wrangler secret put CHAT_RUNTIME_SHARED_SECRET
 ```
 
 Do not put tokens in URLs, compose files, Wrangler variables, logs, D1, metadata, or committed examples. Logs contain stable event names and bounded error messages only.

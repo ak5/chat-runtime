@@ -2,7 +2,7 @@
 
 ## Project profile
 
-Build a maintained, public, project-agnostic runtime image with a reusable protocol and a small Hono control-plane example that can run locally or as a Cloudflare Worker.
+Build a maintained, public, project-agnostic runtime image with a reusable protocol and a Hono API that runs locally or as a Cloudflare Worker.
 
 Initial local path: `~/Projects/generic-discord-tg-bot`
 
@@ -29,9 +29,8 @@ Technical baseline:
 generic-discord-tg-bot/
 ├── packages/
 │   ├── protocol/
-│   └── runtime/
-├── examples/
-│   └── hono-control-plane/
+│   ├── runtime/
+│   └── api/
 │       ├── migrations/
 │       ├── src/
 │       ├── package.json
@@ -234,9 +233,9 @@ Delivery semantics:
 - Protocol or capability incompatibility fails safely.
 - Requests and responses use authenticated integrity checks, timestamps, nonces, and replay protection.
 
-## Hono control-plane example
+## Hono API
 
-`examples/hono-control-plane` demonstrates:
+`packages/api` provides:
 
 - Authenticating runtime requests.
 - Validating event envelopes.
@@ -298,8 +297,8 @@ replace-with-control-plane-host.example.com/*
 The shared secret is never a plain-text Wrangler variable. Document these setup commands with placeholder values:
 
 ```sh
-pnpm --filter @chat-runtime/hono-control-plane exec wrangler secret put CHAT_RUNTIME_SHARED_SECRET
-pnpm --filter @chat-runtime/hono-control-plane exec wrangler deploy
+pnpm --filter @chat-runtime/api exec wrangler secret put CHAT_RUNTIME_SHARED_SECRET
+pnpm --filter @chat-runtime/api exec wrangler deploy
 ```
 
 Deployment remains an explicit adopter action. CI builds and tests the Worker but does not deploy it.
@@ -355,7 +354,7 @@ pnpm check
 pnpm lint
 pnpm test
 pnpm build
-pnpm example:smoke
+pnpm api:smoke
 pnpm image:build
 pnpm verify
 ```
@@ -379,7 +378,7 @@ Test coverage includes:
 - Discord and Telegram rendering limits.
 - Immediate and deferred action paths.
 - Receipt behavior.
-- Hono example integration.
+- Hono API integration.
 - Cloudflare Worker configuration validation and local Wrangler smoke coverage.
 
 CI verifies the repository and builds the Docker image without publishing it.

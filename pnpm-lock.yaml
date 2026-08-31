@@ -30,11 +30,11 @@ importers:
         specifier: ^4.33.1
         version: 4.127.1
 
-  examples/hono-control-plane:
+  packages/api:
     dependencies:
       '@chat-runtime/protocol':
         specifier: workspace:*
-        version: link:../../packages/protocol
+        version: link:../protocol
       hono:
         specifier: ^4.9.6
         version: 4.13.5
