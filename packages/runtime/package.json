@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@chat-runtime/protocol": "workspace:*",
-    "@slack/bolt": "^5.0.0",
+    "@slack/bolt": "^5.1.0",
     "discord.js": "^14.22.1",
     "grammy": "^1.38.2",
     "zod": "^4.1.5"
