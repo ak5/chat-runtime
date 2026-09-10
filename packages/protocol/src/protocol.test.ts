@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ADMIN_ACTIONS, PROTOCOL_VERSION, actionPlanSchema, canonicalRequest, runtimeEventSchema, signRequest, verifyRequestSignature } from "./index.js";
+import { ADMIN_ACTIONS, PROTOCOL_VERSION, actionPlanSchema, canonicalRequest, platformSchema, runtimeEventSchema, signRequest, verifyRequestSignature } from "./index.js";
 
 describe("protocol v1", () => {
+  it("accepts Slack as a protocol platform", () => {
+    expect(platformSchema.parse("slack")).toBe("slack");
+  });
+
   it("accepts a normalized message event", () => {
     expect(runtimeEventSchema.parse({
       protocolVersion: PROTOCOL_VERSION,

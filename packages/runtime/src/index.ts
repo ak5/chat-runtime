@@ -4,6 +4,7 @@ import { DiscordAdapter } from "./discord.js";
 import type { PlatformAdapter } from "./platform.js";
 import { ChatRuntime } from "./runtime.js";
 import { TelegramAdapter } from "./telegram.js";
+import { SlackAdapter } from "./slack.js";
 
 export * from "./config.js";
 export * from "./control-plane.js";
@@ -17,6 +18,7 @@ async function main(): Promise<void> {
   const adapters: PlatformAdapter[] = [];
   if (config.CHAT_RUNTIME_DISCORD_ENABLED) adapters.push(new DiscordAdapter(config));
   if (config.CHAT_RUNTIME_TELEGRAM_ENABLED) adapters.push(new TelegramAdapter(config));
+  if (config.CHAT_RUNTIME_SLACK_ENABLED) adapters.push(new SlackAdapter(config));
   const runtime = new ChatRuntime(config, new ControlPlaneClient(config), adapters);
   for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, () => void runtime.stop().finally(() => process.exit(0)));
   await runtime.start();

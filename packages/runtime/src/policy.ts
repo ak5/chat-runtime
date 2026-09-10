@@ -2,17 +2,18 @@ import { ADMIN_ACTIONS, type RuntimeAction } from "@chat-runtime/protocol";
 import type { RuntimeConfig } from "./config.js";
 
 export function actionDenial(action: RuntimeAction, config: RuntimeConfig): { code: string; message: string } | undefined {
-  const enabled = action.platform === "discord" ? config.CHAT_RUNTIME_DISCORD_ENABLED : config.CHAT_RUNTIME_TELEGRAM_ENABLED;
+  const enabled = action.platform === "discord" ? config.CHAT_RUNTIME_DISCORD_ENABLED : action.platform === "telegram" ? config.CHAT_RUNTIME_TELEGRAM_ENABLED : config.CHAT_RUNTIME_SLACK_ENABLED;
   if (!enabled) return { code: "platform_disabled", message: `${action.platform} is disabled` };
   if (!config.CHAT_RUNTIME_CAPABILITIES.includes(action.type)) return { code: "capability_denied", message: `${action.type} is not allowlisted` };
   if (action.platform === "telegram" && ["interaction.open-modal", "member.role.add", "member.role.remove"].includes(action.type)) return { code: "platform_unsupported", message: `${action.type} is unsupported on Telegram` };
+  if (action.platform === "slack" && (["member.role.add", "member.role.remove"].includes(action.type) || (action.type === "message.delete" && !action.ownMessage))) return { code: "platform_unsupported", message: `${action.type} is unsupported on Slack` };
   if (ADMIN_ACTIONS.has(action.type) && !config.CHAT_RUNTIME_ADMIN_MODE) return { code: "admin_mode_disabled", message: `${action.type} requires administrator mode` };
   if (action.type === "message.delete" && !action.ownMessage && !config.CHAT_RUNTIME_ADMIN_MODE) return { code: "admin_mode_disabled", message: "Deleting another user's message requires administrator mode" };
   return undefined;
 }
 
-export function effectiveCapabilities(platform: "discord" | "telegram", config: RuntimeConfig): string[] {
-  const unsupported = platform === "telegram" ? new Set(["interaction.open-modal", "member.role.add", "member.role.remove"]) : new Set<string>();
+export function effectiveCapabilities(platform: "discord" | "telegram" | "slack", config: RuntimeConfig): string[] {
+  const unsupported = platform === "telegram" ? new Set(["interaction.open-modal", "member.role.add", "member.role.remove"]) : platform === "slack" ? new Set(["member.role.add", "member.role.remove"]) : new Set<string>();
   return config.CHAT_RUNTIME_CAPABILITIES.filter((capability) => !unsupported.has(capability) && (config.CHAT_RUNTIME_ADMIN_MODE || !ADMIN_ACTIONS.has(capability)));
 }
 

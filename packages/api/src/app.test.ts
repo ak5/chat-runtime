@@ -8,7 +8,7 @@ class MemoryRepository implements RuntimeRepository {
   async claimNonce(installation: string, nonce: string): Promise<boolean> { const key = `${installation}:${nonce}`; if (this.nonces.has(key)) return false; this.nonces.add(key); return true; }
   async storeEvent(event: RuntimeEvent): Promise<boolean> { if (this.events.has(event.eventId)) return false; this.events.set(event.eventId, event); return true; }
   async enqueuePlan(plan: ActionPlan): Promise<void> { this.plans.push(plan); }
-  async claimPlans(installation: string, platforms: Array<"discord" | "telegram">): Promise<ActionPlan[]> { return this.plans.filter((plan) => plan.installationId === installation && plan.actions.every((action) => platforms.includes(action.platform))); }
+  async claimPlans(installation: string, platforms: Array<"discord" | "telegram" | "slack">): Promise<ActionPlan[]> { return this.plans.filter((plan) => plan.installationId === installation && plan.actions.every((action) => platforms.includes(action.platform))); }
   async storeReceipt(receipt: ActionReceipt): Promise<void> { this.receipts.push(receipt); }
   async storeHealth(_installation: string, _observedAt: string, health: unknown): Promise<void> { this.health = health; }
   async cleanup(): Promise<number> { return 0; }
@@ -25,8 +25,8 @@ async function signed(path: string, body: unknown, nonce: string = crypto.random
   return new Request(url, { method: body === undefined ? "GET" : "POST", headers: { "content-type": "application/json", [SIGNATURE_HEADERS.installation]: "install", [SIGNATURE_HEADERS.timestamp]: timestamp, [SIGNATURE_HEADERS.nonce]: nonce, [SIGNATURE_HEADERS.signature]: signature }, ...(text ? { body: text } : {}) });
 }
 
-function command(name: string): RuntimeEvent {
-  return { protocolVersion: PROTOCOL_VERSION, eventId: crypto.randomUUID(), installationId: "install", platform: "discord", occurredAt: new Date().toISOString(), type: "interaction.command", metadata: {}, payload: { interactionId: "interaction", conversationId: "channel", userId: "user", name, arguments: {} } };
+function command(name: string, platform: "discord" | "telegram" | "slack" = "discord"): RuntimeEvent {
+  return { protocolVersion: PROTOCOL_VERSION, eventId: crypto.randomUUID(), installationId: "install", platform, occurredAt: new Date().toISOString(), type: "interaction.command", metadata: {}, payload: { interactionId: "interaction", conversationId: "channel", userId: "user", name, arguments: {} } };
 }
 
 describe("Hono control plane", () => {
@@ -53,6 +53,13 @@ describe("Hono control plane", () => {
     const response = await app.fetch(await signed("/v1/actions?platforms=discord", undefined), env);
     const body = await response.json() as { plans: ActionPlan[] };
     expect(body.plans[0]?.actions[0]?.type).toBe("message.send");
+  });
+
+  it("returns Slack-native immediate actions", async () => {
+    const repo = new MemoryRepository(); const app = createApp({ repository: repo });
+    const response = await app.fetch(await signed("/v1/events", command("form", "slack")), env);
+    const body = await response.json() as { plans: ActionPlan[] };
+    expect(body.plans[0]?.actions[0]).toMatchObject({ platform: "slack", type: "interaction.open-modal" });
   });
 
   it("rejects stale signatures", async () => {

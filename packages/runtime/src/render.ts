@@ -41,3 +41,29 @@ export function telegramText(content: ContentAction["content"]): string {
   if (!rendered) throw new Error("Telegram message content rendered empty");
   return rendered.slice(0, 4096);
 }
+
+export function slackMessage(content: ContentAction["content"]) {
+  const fallback = [content.text, ...content.fields.map((field) => `${field.name}: ${field.value}`), ...content.images.map((image) => image.alt ?? image.url)].filter(Boolean).join("\n\n").slice(0, 40_000) || "Message";
+  const blocks: Array<Record<string, unknown>> = [];
+  if (content.text) blocks.push({ type: "section", text: { type: "mrkdwn", text: content.text.slice(0, 3000) } });
+  for (const field of content.fields) blocks.push({ type: "section", text: { type: "mrkdwn", text: `*${field.name}*\n${field.value}`.slice(0, 3000) } });
+  for (const image of content.images) blocks.push({ type: "image", image_url: image.url, alt_text: image.alt ?? "Image" });
+  for (const component of content.components) {
+    if (component.type === "button") {
+      blocks.push({ type: "actions", elements: [{ type: "button", text: { type: "plain_text", text: component.label }, ...(component.url ? { url: component.url, action_id: `link-${component.label}`.slice(0, 255) } : { action_id: component.customId! }), value: component.customId ?? component.url! }] });
+    } else {
+      blocks.push({ type: "actions", elements: [{ type: "static_select", action_id: component.customId, ...(component.placeholder ? { placeholder: { type: "plain_text", text: component.placeholder } } : {}), options: component.choices.map((choice) => ({ text: { type: "plain_text", text: choice.label }, value: choice.value, ...(choice.description ? { description: { type: "plain_text", text: choice.description } } : {}) })) }] });
+    }
+  }
+  return { text: fallback, blocks: blocks.slice(0, 50) };
+}
+
+export function slackModal(modal: Extract<RuntimeAction, { type: "interaction.open-modal" }>["modal"]) {
+  return {
+    type: "modal" as const, callback_id: modal.customId, title: { type: "plain_text" as const, text: modal.title }, submit: { type: "plain_text" as const, text: "Submit" },
+    blocks: modal.fields.map((field) => ({
+      type: "input" as const, block_id: field.customId, optional: !field.required, label: { type: "plain_text" as const, text: field.label },
+      element: { type: "plain_text_input" as const, action_id: field.customId, multiline: field.style === "paragraph", ...(field.minLength !== undefined ? { min_length: field.minLength } : {}), ...(field.maxLength !== undefined ? { max_length: field.maxLength } : {}), ...(field.placeholder ? { placeholder: { type: "plain_text" as const, text: field.placeholder } } : {}) },
+    })),
+  };
+}

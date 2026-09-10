@@ -86,10 +86,11 @@ export class ChatRuntime {
     await this.controlPlane.reportHealth({
       protocolVersion: PROTOCOL_VERSION, installationId: this.config.CHAT_RUNTIME_INSTALLATION_ID,
       observedAt: new Date().toISOString(), adminMode: this.config.CHAT_RUNTIME_ADMIN_MODE,
-      platforms: { discord: this.adapters.find((item) => item.platform === "discord")?.isReady() ?? false, telegram: this.adapters.find((item) => item.platform === "telegram")?.isReady() ?? false },
+      platforms: { discord: this.adapters.find((item) => item.platform === "discord")?.isReady() ?? false, telegram: this.adapters.find((item) => item.platform === "telegram")?.isReady() ?? false, slack: this.adapters.find((item) => item.platform === "slack")?.isReady() ?? false },
       effectiveCapabilities: {
         discord: this.config.CHAT_RUNTIME_DISCORD_ENABLED ? effectiveCapabilities("discord", this.config) : [],
         telegram: this.config.CHAT_RUNTIME_TELEGRAM_ENABLED ? effectiveCapabilities("telegram", this.config) : [],
+        slack: this.config.CHAT_RUNTIME_SLACK_ENABLED ? effectiveCapabilities("slack", this.config) : [],
       },
     });
     this.lastHealthReport = Date.now();

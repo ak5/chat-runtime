@@ -2,21 +2,21 @@
 
 ## Boundary
 
-The Docker runtime is an outbound-only transport executor. It maintains at most one Discord bot through the Gateway and at most one Telegram bot through continuous `getUpdates` long polling. Either can be disabled. The runtime normalizes events, signs requests, enforces capabilities, renders portable content, executes actions, and returns receipts.
+The Docker runtime is an outbound-only transport executor. It maintains at most one bot connection for each enabled platform: Discord through the Gateway, Telegram through continuous `getUpdates` long polling, and Slack through Socket Mode. Each can be disabled. The runtime normalizes events, signs requests, enforces capabilities, renders portable content, executes actions, and returns receipts.
 
 The Hono Cloudflare Worker is the API and control plane. It authenticates the runtime, persists state in D1, applies policy, returns immediate plans, and leases deferred plans. Product-specific commands, authorization, moderation, models, and additional storage integrations belong in API extensions or a replacement consumer control plane.
 
 ```text
-Discord Gateway ─┐                         ┌─ immediate action plan
-                 ├─ Node/Docker runtime ──┤
-Telegram polling ┘       signed HTTPS      └─ Hono Worker ─ D1 outbox/state
+Discord Gateway ─┐
+Telegram polling ├─ Node/Docker runtime ── signed HTTPS ── Hono Worker ─ D1 outbox/state
+Slack Socket Mode┘
 ```
 
 The container needs outbound HTTPS only. The Worker has no route into the container; the runtime polls its action outbox.
 
 ## Lifecycle
 
-`CHAT_RUNTIME_DISCORD_ENABLED` and `CHAT_RUNTIME_TELEGRAM_ENABLED` default to false. Enabled platforms require their token and start independently in one process. A platform failure is reported without exposing credentials. Enablement changes take effect on process restart.
+The Discord, Telegram, and Slack enablement variables default to false. Enabled platforms require their credentials and start independently in one process. Slack uses a bot token and an app-level Socket Mode token. A platform failure is reported without exposing credentials. Enablement changes take effect on process restart.
 
 ## Storage
 

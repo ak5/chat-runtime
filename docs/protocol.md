@@ -10,9 +10,9 @@ Events are delivered at least once. The control plane records duplicate deliveri
 
 ## Actions
 
-Supported actions acknowledge/defer/open Discord interactions; send/reply/edit/delete messages; add/remove reactions; and add/remove Discord roles. Every action is schema-validated and must be included in the runtime capability allowlist. Administrative mode is an additional ceiling for role changes and deleting messages not authored by the runtime.
+Supported actions acknowledge/defer/open Discord and Slack interactions; send/reply/edit/delete messages; add/remove reactions; and add/remove Discord roles. Every action is schema-validated and must be included in the runtime capability allowlist. Administrative mode is an additional ceiling for role changes and deleting messages not authored by the runtime. Slack does not expose portable role changes or deletion of messages not authored by the app.
 
-Portable message content supports text, fields, image URLs, buttons, and select choices. Discord receives native components and embeds. Telegram renders text, fields, image links, and buttons; commands and button callbacks become interaction events, while selects and modals fail explicitly.
+Portable message content supports text, fields, image URLs, buttons, and select choices. Discord receives native components and embeds. Telegram renders text, fields, image links, and buttons; commands and button callbacks become interaction events, while selects and modals fail explicitly. Slack receives Block Kit sections, images, buttons, selects, and modals. Slack commands and interactive payloads are acknowledged immediately before delivery to the control plane.
 
 ## Receipts
 

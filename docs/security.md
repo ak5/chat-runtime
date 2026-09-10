@@ -2,7 +2,7 @@
 
 ## Capability ceilings
 
-An action executes only when its platform is enabled, its action type is allowlisted, its schema is valid, the plan targets this installation, and platform credentials permit it. Role changes and deletion of another user's message additionally require `CHAT_RUNTIME_ADMIN_MODE=true`. Administrator mode never grants Discord or Telegram permissions.
+An action executes only when its platform is enabled, its action type is allowlisted, its schema is valid, the plan targets this installation, and platform credentials permit it. Role changes and deletion of another user's message additionally require `CHAT_RUNTIME_ADMIN_MODE=true`. Administrator mode never grants Discord, Telegram, or Slack permissions.
 
 ## Secrets
 

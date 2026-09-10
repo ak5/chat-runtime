@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const PROTOCOL_VERSION = "1" as const;
-export const platformSchema = z.enum(["discord", "telegram"]);
+export const platformSchema = z.enum(["discord", "telegram", "slack"]);
 export type Platform = z.infer<typeof platformSchema>;
 
 const id = z.string().min(1).max(200);
@@ -144,7 +144,7 @@ export const runtimeCapabilitiesSchema = z.object({
   protocolVersion: z.literal(PROTOCOL_VERSION),
   installationId: id,
   adminMode: z.boolean(),
-  platforms: z.object({ discord: z.boolean(), telegram: z.boolean() }),
+  platforms: z.object({ discord: z.boolean(), telegram: z.boolean(), slack: z.boolean() }),
   actions: z.array(z.string()),
 });
 export type RuntimeCapabilities = z.infer<typeof runtimeCapabilitiesSchema>;

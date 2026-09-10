@@ -32,7 +32,7 @@ export function createApp(options: AppOptions = {}) {
   });
 
   app.get("/v1/actions", async (c) => {
-    const requested = (c.req.query("platforms") ?? "").split(",").filter((value): value is "discord" | "telegram" => value === "discord" || value === "telegram");
+    const requested = (c.req.query("platforms") ?? "").split(",").filter((value): value is "discord" | "telegram" | "slack" => value === "discord" || value === "telegram" || value === "slack");
     const leaseId = newProtocolId("lease");
     const now = new Date();
     const plans = await c.get("repository").claimPlans(c.env.CHAT_RUNTIME_INSTALLATION_ID, requested, leaseId, now.toISOString(), new Date(now.getTime() + 30_000).toISOString());
@@ -64,7 +64,7 @@ export function createApp(options: AppOptions = {}) {
 function immediatePlans(event: RuntimeEvent): ActionPlan[] {
   if (event.type === "interaction.command") {
     if (event.payload.name === "ping") return [planFor(event, [{ actionId: newProtocolId("action"), platform: event.platform, type: "interaction.acknowledge", interactionId: event.payload.interactionId, token: event.payload.token, ephemeral: true, content: content("pong") }])];
-    if (event.payload.name === "form" && event.platform === "discord") return [planFor(event, [{ actionId: newProtocolId("action"), platform: "discord", type: "interaction.open-modal", interactionId: event.payload.interactionId, token: event.payload.token, modal: { title: "Example form", customId: "example-form", fields: [{ customId: "answer", label: "Your answer", style: "paragraph", required: true }] } }])];
+    if (event.payload.name === "form" && event.platform !== "telegram") return [planFor(event, [{ actionId: newProtocolId("action"), platform: event.platform, type: "interaction.open-modal", interactionId: event.payload.interactionId, token: event.payload.token, modal: { title: "Example form", customId: "example-form", fields: [{ customId: "answer", label: "Your answer", style: "paragraph", required: true }] } }])];
     if (event.payload.name === "button") return [planFor(event, [{ actionId: newProtocolId("action"), platform: event.platform, type: "interaction.acknowledge", interactionId: event.payload.interactionId, token: event.payload.token, ephemeral: true, content: { ...content("Choose an action"), components: [{ type: "button", customId: "example-button", label: "Continue", style: "primary" }] } }])];
   }
   if (event.type === "interaction.component") return [planFor(event, [{ actionId: newProtocolId("action"), platform: event.platform, type: "interaction.acknowledge", interactionId: event.payload.interactionId, token: event.payload.token, ephemeral: true, content: content(`Component ${event.payload.customId} received.`) }])];

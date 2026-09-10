@@ -3,8 +3,8 @@ import type { ActionPlan, ActionReceipt, RuntimeEvent } from "@chat-runtime/prot
 export interface RuntimeRepository {
   claimNonce(installationId: string, nonce: string, requestTimestamp: string, expiresAt: string): Promise<boolean>;
   storeEvent(event: RuntimeEvent): Promise<boolean>;
-  enqueuePlan(plan: ActionPlan, platform: "discord" | "telegram", availableAt?: string, delivered?: boolean): Promise<void>;
-  claimPlans(installationId: string, platforms: Array<"discord" | "telegram">, leaseId: string, now: string, leaseExpiresAt: string): Promise<ActionPlan[]>;
+  enqueuePlan(plan: ActionPlan, platform: "discord" | "telegram" | "slack", availableAt?: string, delivered?: boolean): Promise<void>;
+  claimPlans(installationId: string, platforms: Array<"discord" | "telegram" | "slack">, leaseId: string, now: string, leaseExpiresAt: string): Promise<ActionPlan[]>;
   storeReceipt(receipt: ActionReceipt): Promise<void>;
   storeHealth(installationId: string, observedAt: string, health: unknown): Promise<void>;
   cleanup(now: string): Promise<number>;
@@ -39,12 +39,12 @@ export class D1RuntimeRepository implements RuntimeRepository {
     return true;
   }
 
-  async enqueuePlan(plan: ActionPlan, platform: "discord" | "telegram", availableAt = new Date().toISOString(), delivered = false): Promise<void> {
+  async enqueuePlan(plan: ActionPlan, platform: "discord" | "telegram" | "slack", availableAt = new Date().toISOString(), delivered = false): Promise<void> {
     await this.db.prepare("INSERT OR IGNORE INTO action_plans (plan_id, installation_id, platform, event_id, plan_json, status, available_at, expires_at, created_at, retain_until) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
       .bind(plan.planId, plan.installationId, platform, plan.eventId ?? null, JSON.stringify(plan), delivered ? "delivered" : "pending", availableAt, plan.expiresAt ?? null, plan.createdAt, this.retainUntil()).run();
   }
 
-  async claimPlans(installationId: string, platforms: Array<"discord" | "telegram">, leaseId: string, now: string, leaseExpiresAt: string): Promise<ActionPlan[]> {
+  async claimPlans(installationId: string, platforms: Array<"discord" | "telegram" | "slack">, leaseId: string, now: string, leaseExpiresAt: string): Promise<ActionPlan[]> {
     if (platforms.length === 0) return [];
     const placeholders = platforms.map(() => "?").join(",");
     const rows = await this.db.prepare(`SELECT plan_id, plan_json FROM action_plans WHERE installation_id=? AND platform IN (${placeholders}) AND available_at<=? AND (expires_at IS NULL OR expires_at>?) AND (status='pending' OR (status='leased' AND lease_expires_at<=?)) ORDER BY created_at LIMIT 25`).bind(installationId, ...platforms, now, now, now).all<{ plan_id: string; plan_json: string }>();

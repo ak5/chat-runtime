@@ -6,7 +6,7 @@ This is a pnpm TypeScript monorepo targeting Node.js 22 and Cloudflare Workers. 
 
 Preserve these invariants:
 
-- The runtime is outbound-only and supports at most one optional Discord bot and one optional Telegram bot.
+- The runtime is outbound-only and supports at most one optional Discord bot, one optional Telegram bot, and one optional Slack app connection.
 - All runtime/control-plane traffic uses protocol v1 schemas and signed requests.
 - Every action passes platform enablement, capability, administrator-mode, and schema checks.
 - D1 is canonical for messages, events, delivery state, action leases, receipts, nonces, and health.

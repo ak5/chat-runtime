@@ -10,17 +10,20 @@ const baseEnv = { CHAT_RUNTIME_INSTALLATION_ID: "install", CHAT_RUNTIME_CONTROL_
 const action = (overrides: Partial<RuntimeAction> = {}): RuntimeAction => ({ actionId: "a1", platform: "discord", type: "message.send", conversationId: "c1", content: { text: "hello", fields: [], images: [], components: [], suppressNotifications: true }, ...overrides } as RuntimeAction);
 
 describe("runtime configuration and policy", () => {
-  it("starts with both platforms disabled and no tokens", () => {
+  it("starts with all platforms disabled and no tokens", () => {
     const config = parseConfig(baseEnv);
     expect(config.CHAT_RUNTIME_DISCORD_ENABLED).toBe(false);
     expect(config.CHAT_RUNTIME_TELEGRAM_ENABLED).toBe(false);
+    expect(config.CHAT_RUNTIME_SLACK_ENABLED).toBe(false);
   });
   it("requires credentials only for enabled platforms", () => {
     expect(() => parseConfig({ ...baseEnv, CHAT_RUNTIME_DISCORD_ENABLED: "true" })).toThrow(/DISCORD_TOKEN/);
     expect(parseConfig({ ...baseEnv, CHAT_RUNTIME_DISCORD_ENABLED: "true", DISCORD_TOKEN: "token" }).CHAT_RUNTIME_DISCORD_ENABLED).toBe(true);
     expect(parseConfig({ ...baseEnv, CHAT_RUNTIME_TELEGRAM_ENABLED: "true", TELEGRAM_TOKEN: "token" }).CHAT_RUNTIME_TELEGRAM_ENABLED).toBe(true);
-    const combined = parseConfig({ ...baseEnv, CHAT_RUNTIME_DISCORD_ENABLED: "true", DISCORD_TOKEN: "discord", CHAT_RUNTIME_TELEGRAM_ENABLED: "true", TELEGRAM_TOKEN: "telegram" });
-    expect([combined.CHAT_RUNTIME_DISCORD_ENABLED, combined.CHAT_RUNTIME_TELEGRAM_ENABLED]).toEqual([true, true]);
+    expect(() => parseConfig({ ...baseEnv, CHAT_RUNTIME_SLACK_ENABLED: "true", SLACK_BOT_TOKEN: "xoxb-token" })).toThrow(/SLACK_APP_TOKEN/);
+    expect(parseConfig({ ...baseEnv, CHAT_RUNTIME_SLACK_ENABLED: "true", SLACK_BOT_TOKEN: "xoxb-token", SLACK_APP_TOKEN: "xapp-token" }).CHAT_RUNTIME_SLACK_ENABLED).toBe(true);
+    const combined = parseConfig({ ...baseEnv, CHAT_RUNTIME_DISCORD_ENABLED: "true", DISCORD_TOKEN: "discord", CHAT_RUNTIME_TELEGRAM_ENABLED: "true", TELEGRAM_TOKEN: "telegram", CHAT_RUNTIME_SLACK_ENABLED: "true", SLACK_BOT_TOKEN: "xoxb", SLACK_APP_TOKEN: "xapp" });
+    expect([combined.CHAT_RUNTIME_DISCORD_ENABLED, combined.CHAT_RUNTIME_TELEGRAM_ENABLED, combined.CHAT_RUNTIME_SLACK_ENABLED]).toEqual([true, true, true]);
   });
   it("enforces platform, capability, and admin ceilings", () => {
     const disabled = parseConfig(baseEnv);
@@ -32,6 +35,9 @@ describe("runtime configuration and policy", () => {
     expect(actionDenial({ actionId: "role", platform: "discord", type: "member.role.add", guildId: "g", userId: "u", roleId: "r" }, adminDisabled)?.code).toBe("admin_mode_disabled");
     const telegram = parseConfig({ ...baseEnv, CHAT_RUNTIME_TELEGRAM_ENABLED: "true", TELEGRAM_TOKEN: "token", CHAT_RUNTIME_CAPABILITIES: "interaction.open-modal" });
     expect(actionDenial({ actionId: "modal", platform: "telegram", type: "interaction.open-modal", interactionId: "i", modal: { title: "Form", customId: "form", fields: [{ customId: "answer", label: "Answer", style: "short", required: true }] } }, telegram)?.code).toBe("platform_unsupported");
+    const slack = parseConfig({ ...baseEnv, CHAT_RUNTIME_SLACK_ENABLED: "true", SLACK_BOT_TOKEN: "xoxb", SLACK_APP_TOKEN: "xapp", CHAT_RUNTIME_CAPABILITIES: "member.role.add,message.delete" });
+    expect(actionDenial({ actionId: "role", platform: "slack", type: "member.role.add", guildId: "g", userId: "u", roleId: "r" }, slack)?.code).toBe("platform_unsupported");
+    expect(actionDenial({ actionId: "delete", platform: "slack", type: "message.delete", conversationId: "c", messageId: "m", ownMessage: false }, slack)?.code).toBe("platform_unsupported");
   });
   it("classifies provider rate limits as retryable without retrying", () => {
     expect(platformError({ status: 429, retry_after: 2 })).toEqual({ status: "retryable", code: "platform_rate_limited", message: "[object Object]", retryAfterMs: 2000 });

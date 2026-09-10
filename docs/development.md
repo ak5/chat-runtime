@@ -2,7 +2,7 @@
 
 ## Setup
 
-Install Node.js 22 and pnpm 10, then run `pnpm install`. Copy `.env.example` to the ignored `.env` and replace the shared-secret placeholder. Both platform bots remain disabled unless explicitly enabled.
+Install Node.js 22 and pnpm 10, then run `pnpm install`. Copy `.env.example` to the ignored `.env` and replace the shared-secret placeholder. All platform connections remain disabled unless explicitly enabled.
 
 Initialize local D1 and run the Worker:
 

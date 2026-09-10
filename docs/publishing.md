@@ -16,4 +16,10 @@ pnpm --filter @chat-runtime/api exec wrangler deploy
 
 Build locally with `pnpm image:build`. Supply environment variables through the deployment platform, not image layers or command-line URLs. The compose example demonstrates variable names without embedding values.
 
+### Slack app
+
+Create a Slack app with Socket Mode enabled. Generate an app-level token with `connections:write` and supply it as `SLACK_APP_TOKEN`; install the app to the workspace and supply its bot token as `SLACK_BOT_TOKEN`.
+
+Grant only the bot scopes needed by the configured capabilities. The full adapter uses `chat:write`, `reactions:read`, `reactions:write`, `files:read`, `commands`, and the applicable conversation history scopes (`channels:history`, `groups:history`, `im:history`, and `mpim:history`). Subscribe to the corresponding message events plus `reaction_added` and `reaction_removed`. Configure slash commands explicitly in the Slack app, enable interactivity, and optionally restrict execution with `SLACK_ALLOWED_CHANNEL_IDS`.
+
 Package registries, container registries, release automation, and deployment targets are intentionally unconfigured. Adopters choose ownership before publishing.
