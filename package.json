@@ -16,12 +16,12 @@
     "dev:api": "pnpm --filter @chat-runtime/api dev"
   },
   "devDependencies": {
-    "@eslint/js": "^9.34.0",
-    "@types/node": "^22.18.0",
-    "eslint": "^9.34.0",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.41.0",
-    "vitest": "^3.2.4",
-    "wrangler": "^4.33.1"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.2",
+    "eslint": "^10.11.0",
+    "typescript": "^7.0.2",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.1",
+    "wrangler": "^4.136.1"
   }
 }
